@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>K8s Stress App</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      margin: 40px;
+      max-width: 700px;
+    }
+    button {
+      margin: 8px 8px 8px 0;
+      padding: 10px 16px;
+      cursor: pointer;
+    }
+    #output {
+      margin-top: 20px;
+      padding: 12px;
+      background: #f4f4f4;
+      border: 1px solid #ddd;
+      white-space: pre-wrap;
+    }
+  </style>
+</head>
+<body>
+  <h1>Kubernetes Stress Demo</h1>
+  <p>Aplicação simples para testar carga e autoscaling.</p>
+
+  <button onclick="callHealth()">Health</button>
+  <button onclick="callStress()">1x Stress</button>
+  <button onclick="callBurst()">100x Stress</button>
+  <button onclick="callSlow()">Slow</button>
+
+  <div id="output">Aguardando ação...</div>
+
+  <script>
+    const output = document.getElementById("output");
+
+    async function callHealth() {
+      output.textContent = "Chamando /health...";
+      const res = await fetch("/health");
+      const data = await res.json();
+      output.textContent = JSON.stringify(data, null, 2);
+    }
+
+    async function callStress() {
+      output.textContent = "Chamando /stress...";
+      const res = await fetch("/stress");
+      const data = await res.json();
+      output.textContent = JSON.stringify(data, null, 2);
+    }
+
+    async function callSlow() {
+      output.textContent = "Chamando /slow...";
+      const res = await fetch("/slow");
+      const data = await res.json();
+      output.textContent = JSON.stringify(data, null, 2);
+    }
+
+    async function callBurst() {
+      output.textContent = "Disparando 100 requisições em paralelo para /stress...";
+      const requests = [];
+      for (let i = 0; i < 100; i++) {
+        requests.push(fetch("/stress"));
+      }
+      await Promise.allSettled(requests);
+      output.textContent = "Burst concluído: 100 requisições enviadas.";
+    }
+  </script>
+</body>
+</html>
