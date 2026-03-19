@@ -2,10 +2,8 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: k8s-stress-app
-  labels:
-    app: k8s-stress-app
 spec:
-  replicas: 2
+  replicas: 1
   selector:
     matchLabels:
       app: k8s-stress-app
@@ -27,15 +25,25 @@ spec:
             limits:
               cpu: "500m"
               memory: "256Mi"
-          readinessProbe:
+          startupProbe:
             httpGet:
               path: /health
               port: 5050
-            initialDelaySeconds: 5
+            failureThreshold: 30
             periodSeconds: 5
-          livenessProbe:
+          readinessProbe:
             httpGet:
               path: /health
               port: 5050
             initialDelaySeconds: 10
             periodSeconds: 10
+            timeoutSeconds: 2
+            failureThreshold: 6
+          livenessProbe:
+            httpGet:
+              path: /health
+              port: 5050
+            initialDelaySeconds: 30
+            periodSeconds: 15
+            timeoutSeconds: 2
+            failureThreshold: 5
